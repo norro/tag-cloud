@@ -47,6 +47,13 @@ class TagCloud
   protected $minLength = null;
 
   /**
+   * Minimum size of a tag to filtered in string
+   *
+   * @var null
+   */
+  protected $minSize = null;
+
+  /**
    * Custom format output of tags
    *
    * transformation: upper and lower for change of case
@@ -299,6 +306,19 @@ class TagCloud
   }
 
   /**
+   * Sets a minimum tag size for the tags to display
+   *
+   * @param int $minSize The minimum size of a tag
+   *
+   * @return $this
+   */
+  public function setMinSize($minSize)
+  {
+    $this->minSize = $minSize;
+    return $this;
+  }
+
+  /**
    * Gets the minimum length value
    *
    * @return int
@@ -308,6 +328,15 @@ class TagCloud
     return $this->minLength;
   }
 
+  /**
+   * Gets the minimum tag size
+   *
+   * @return int
+   */
+  public function getMinSize()
+  {
+    return $this->minSize;
+  }
 
   /**
    * Sets a limit for the amount of clouds
@@ -413,6 +442,7 @@ class TagCloud
   {
     $this->remove();
     $this->minLength();
+    $this->minSize();
     if (empty($this->orderBy)) {
       $this->shuffle();
     } else {
@@ -423,7 +453,6 @@ class TagCloud
         $orderDirection
       );
     }
-
     $this->limit();
     $max = $this->getMax();
     if (count($this->tagsArray)) {
@@ -553,6 +582,31 @@ class TagCloud
       $_tagsArray = array();
       foreach ($this->tagsArray as $key => $value) {
         if (strlen($value['tag']) >= $limit) {
+          $_tagsArray[$value['tag']] = $value;
+        }
+        $i++;
+      }
+      $this->tagsArray = array();
+      $this->tagsArray = $_tagsArray;
+    }
+    return $this->tagsArray;
+  }
+
+  /**
+   * Reduces the array by removing tags with a
+   * size smaller than the minSize
+   *
+   * @return array The collection of items within
+   * the string length boundaries
+   */
+  protected function minSize()
+  {
+    $limit = $this->getMinSize();
+    if ($limit !== null) {
+      $i = 0;
+      $_tagsArray = array();
+      foreach ($this->tagsArray as $key => $value) {
+        if ($value['size'] >= $limit) {
           $_tagsArray[$value['tag']] = $value;
         }
         $i++;
